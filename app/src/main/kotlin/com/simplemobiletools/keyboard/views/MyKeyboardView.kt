@@ -34,7 +34,6 @@ import com.simplemobiletools.keyboard.activities.ManageClipboardItemsActivity
 import com.simplemobiletools.keyboard.activities.SettingsActivity
 import com.simplemobiletools.keyboard.adapters.ClipsKeyboardAdapter
 import com.simplemobiletools.keyboard.adapters.EmojisAdapter
-import com.simplemobiletools.keyboard.dialogs.ChangeLanguagePopup
 import com.simplemobiletools.keyboard.extensions.*
 import com.simplemobiletools.keyboard.helpers.*
 import com.simplemobiletools.keyboard.helpers.MyKeyboard.Companion.KEYCODE_DELETE
@@ -413,7 +412,7 @@ class MyKeyboardView @JvmOverloads constructor(context: Context, attrs: Attribut
             top_keyboard_divider.beGoneIf(wasDarkened)
             top_keyboard_divider.background = ColorDrawable(strokeColor)
 
-            background = ColorDrawable(toolbarColor)
+            background = ColorDrawable(darkerColor)
             clipboard_value.apply {
                 background = rippleBg
                 setTextColor(mTextColor)
@@ -1033,9 +1032,7 @@ class MyKeyboardView @JvmOverloads constructor(context: Context, attrs: Attribut
      */
     private fun onLongPress(popupKey: MyKeyboard.Key, me: MotionEvent): Boolean {
         if (popupKey.code == KEYCODE_EMOJI) {
-            ChangeLanguagePopup(this, onSelect = {
-                mOnKeyboardActionListener?.reloadKeyboard()
-            })
+            openEmojiPalette()
             return true
         } else {
             val popupKeyboardId = popupKey.popupResId

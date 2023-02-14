@@ -2,8 +2,11 @@ package com.simplemobiletools.keyboard.activities
 
 import android.content.Intent
 import android.os.Bundle
+import com.simplemobiletools.commons.activities.CustomizationActivity
 import com.simplemobiletools.commons.dialogs.RadioGroupDialog
 import com.simplemobiletools.commons.extensions.*
+import com.simplemobiletools.commons.helpers.APP_ICON_IDS
+import com.simplemobiletools.commons.helpers.APP_LAUNCHER_NAME
 import com.simplemobiletools.commons.helpers.NavigationIcon
 import com.simplemobiletools.commons.helpers.isTiramisuPlus
 import com.simplemobiletools.commons.models.RadioItem
@@ -62,7 +65,11 @@ class SettingsActivity : SimpleActivity() {
     private fun setupCustomizeColors() {
         settings_color_customization_label.text = getCustomizeColorsString()
         settings_color_customization_holder.setOnClickListener {
-            handleCustomizeColorsClick()
+            Intent(applicationContext, CustomizationActivity::class.java).apply {
+                putExtra(APP_ICON_IDS, getAppIconIDs())
+                putExtra(APP_LAUNCHER_NAME, getAppLauncherName())
+                startActivity(this)
+            }
         }
     }
 

@@ -1,7 +1,9 @@
 package com.simplemobiletools.keyboard.services
 
 import android.content.SharedPreferences
+import android.content.res.Resources
 import android.inputmethodservice.InputMethodService
+import android.os.Build
 import android.text.InputType
 import android.text.InputType.TYPE_CLASS_DATETIME
 import android.text.InputType.TYPE_CLASS_NUMBER
@@ -21,6 +23,7 @@ import com.simplemobiletools.keyboard.extensions.config
 import com.simplemobiletools.keyboard.helpers.*
 import com.simplemobiletools.keyboard.views.MyKeyboardView
 import kotlinx.android.synthetic.main.keyboard_view_keyboard.view.*
+import java.util.*
 
 // based on https://www.androidauthority.com/lets-build-custom-keyboard-android-832362/
 class SimpleKeyboardIME : InputMethodService(), MyKeyboardView.OnKeyboardActionListener, SharedPreferences.OnSharedPreferenceChangeListener {
@@ -153,7 +156,16 @@ class SimpleKeyboardIME : InputMethodService(), MyKeyboardView.OnKeyboardActionL
                 keyboardView!!.setKeyboard(keyboard!!)
             }
             MyKeyboard.KEYCODE_EMOJI -> {
-                keyboardView?.openEmojiPalette()
+                keyboardView?.apply {
+                    val systemLocales = getSystemLocales().sortedBy { it.language }.map { it.language.toConst() }
+                    val currentLocaleIndex = systemLocales.indexOf(context.config.keyboardLanguage)
+                    var nextIndex = currentLocaleIndex + 1
+                    if (nextIndex == systemLocales.size) {
+                        nextIndex = 0
+                    }
+                    config.keyboardLanguage = nextIndex
+                    mOnKeyboardActionListener?.reloadKeyboard()
+                }
             }
             else -> {
                 var codeChar = code.toChar()
@@ -291,5 +303,25 @@ class SimpleKeyboardIME : InputMethodService(), MyKeyboardView.OnKeyboardActionL
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         keyboardView?.setupKeyboard()
+    }
+
+    private fun String.toConst(): Int {
+        return when (this) {
+            "ru" -> LANGUAGE_RUSSIAN
+            else -> LANGUAGE_ENGLISH_QWERTY
+        }
+    }
+
+    private fun getSystemLocales(): List<Locale> {
+        val locales = ArrayList<Locale>()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val localeList = Resources.getSystem().configuration.locales
+            for (i in 0 until localeList.size()) {
+                locales.add(localeList[i])
+            }
+        } else {
+            locales.add(Resources.getSystem().configuration.locale)
+        }
+        return locales
     }
 }
